@@ -95,6 +95,56 @@ fi
 [[ -z "$CSS_DIR" ]] && { error "Could not find Steam CSS directory (native or Flatpak)."; exit 1; }
 
 ########################
+# Detect active chunk~*.css file safely
+########################
+CSS_FILE=""
+latest_mtime=0
+
+shopt -s nullglob
+for file in "$CSS_DIR"/chunk~*.css; do
+    mtime=$(stat -c %Y "$file")  # modification time in seconds
+    if (( mtime > latest_mtime )); then
+        latest_mtime=$mtime
+        CSS_FILE="$file"
+    fi
+done
+shopt -u nullglob
+
+if [[ -z "$CSS_FILE" ]]; then
+    error "No chunk~*.css found in $CSS_DIR."
+    exit 1
+fi
+
+CSS_NAME="$(basename "$CSS_FILE")"
+info "Detected active CSS file: $CSS_NAME"
+
+BACKUP_BASE="$CSS_FILE.backup"
+ORIGINAL_BACKUP="$CSS_DIR/.chunk_original.css"
+
+# Create special original backup if it doesn't exist
+if [[ ! -f "$ORIGINAL_BACKUP" ]]; then
+    cp "$CSS_FILE" "$ORIGINAL_BACKUP"
+    success "Original CSS backup created: $(basename "$ORIGINAL_BACKUP")"
+else
+    info "Original CSS backup already exists: $(basename "$ORIGINAL_BACKUP")"
+fi
+
+########################
+# Collect backups
+########################
+refresh_backups() {
+    # Use globbing and check if any backup files exist
+    BACKUPS=()
+    shopt -s nullglob
+    for file in "$BACKUP_BASE"*; do
+        BACKUPS+=("$file")
+    done
+    shopt -u nullglob
+}
+
+refresh_backups
+
+########################
 # Steam detection
 ########################
 check_steam_running() {
@@ -115,32 +165,6 @@ while check_steam_running; do
 done
 success "Steam has exited."
 ask_yes_no "Steam has fully closed. Continue?" || { warn "Exiting."; exit 0; }
-
-########################
-# Detect active chunk~*.css file
-########################
-info "Detecting active chunk~*.css file..."
-CSS_FILE="$(ls -t "$CSS_DIR"/chunk~*.css 2>/dev/null | head -n 1 || true)"
-[[ -z "$CSS_FILE" ]] && { error "No chunk~*.css found in $CSS_DIR."; exit 1; }
-CSS_NAME="$(basename "$CSS_FILE")"
-BACKUP_BASE="$CSS_FILE.backup"
-ORIGINAL_BACKUP="$CSS_DIR/.chunk_original.css"
-
-# Create special original backup if it doesn't exist
-if [[ ! -f "$ORIGINAL_BACKUP" ]]; then
-    cp "$CSS_FILE" "$ORIGINAL_BACKUP"
-    success "Original CSS backup created: $(basename "$ORIGINAL_BACKUP")"
-else
-    info "Original CSS backup already exists: $(basename "$ORIGINAL_BACKUP")"
-fi
-
-########################
-# Collect backups
-########################
-refresh_backups() {
-    mapfile -t BACKUPS < <(ls -1 "$BACKUP_BASE"* 2>/dev/null | sort)
-}
-refresh_backups
 
 ########################
 # CSS strings
@@ -167,6 +191,10 @@ create_backup() {
 }
 
 list_backups() {
+    if [[ ${#BACKUPS[@]} -eq 0 ]]; then
+        echo -e "${RED}No backups available.${RESET}"
+        return
+    fi
     i=1
     for b in "${BACKUPS[@]}"; do
         date_str="$(stat -c '%y' "$b" | cut -d'.' -f1)"
@@ -184,17 +212,26 @@ patch_css() {
     cp "$CSS_FILE" "$PATCH_FILE"
     info "Starting interactive CSS patching..."
 
-    ask_yes_no "Do you wish to remove the What's New section?" && \
-        sed -i "s|$STR_WHATSNEW|$STR_NOWHATSNEW|g" "$PATCH_FILE" && \
-        success "What's New removed." || warn "Skipped What's New."
+    if ask_yes_no "Do you wish to remove the What's New section?"; then
+        sed -i "s|$STR_WHATSNEW|$STR_NOWHATSNEW|g" "$PATCH_FILE"
+        success "What's New removed."
+    else
+        warn "Skipped What's New."
+    fi
 
-    ask_yes_no "Do you wish to remove the Add Shelf function?" && \
-        sed -i "s|$STR_ADDSHELF|$STR_NOADDSHELF|g" "$PATCH_FILE" && \
-        success "Add Shelf removed." || warn "Skipped Add Shelf."
+    if ask_yes_no "Do you wish to remove the Add Shelf function?"; then
+        sed -i "s|$STR_ADDSHELF|$STR_NOADDSHELF|g" "$PATCH_FILE"
+        success "Add Shelf removed."
+    else
+        warn "Skipped Add Shelf."
+    fi
 
-    ask_yes_no "Do you wish to remove the Left Column?" && \
-        sed -i "s|$STR_LEFTCOLUMN|$STR_NOLEFTCOLUMN|g" "$PATCH_FILE" && \
-        success "Left Column removed." || warn "Skipped Left Column."
+    if ask_yes_no "Do you wish to remove the Left Column?"; then
+        sed -i "s|$STR_LEFTCOLUMN|$STR_NOLEFTCOLUMN|g" "$PATCH_FILE"
+        success "Left Column removed."
+    else
+        warn "Skipped Left Column."
+    fi
 
     if ! cmp -s "$CSS_FILE" "$PATCH_FILE"; then
         mv "$PATCH_FILE" "$CSS_FILE"
@@ -213,17 +250,26 @@ reverse_css_changes() {
     cp "$CSS_FILE" "$PATCH_FILE"
     info "Starting interactive CSS reversal..."
 
-    ask_yes_no "Do you wish to restore the What's New section?" && \
-        sed -i "s|$STR_NOWHATSNEW|$STR_WHATSNEW|g" "$PATCH_FILE" && \
-        success "What's New restored." || warn "Skipped What's New."
+    if ask_yes_no "Do you wish to restore the What's New section?"; then
+        sed -i "s|$STR_NOWHATSNEW|$STR_WHATSNEW|g" "$PATCH_FILE"
+        success "What's New restored."
+    else
+        warn "Skipped What's New."
+    fi
 
-    ask_yes_no "Do you wish to restore the Add Shelf function?" && \
-        sed -i "s|$STR_NOADDSHELF|$STR_ADDSHELF|g" "$PATCH_FILE" && \
-        success "Add Shelf restored." || warn "Skipped Add Shelf."
+    if ask_yes_no "Do you wish to restore the Add Shelf function?"; then
+        sed -i "s|$STR_NOADDSHELF|$STR_ADDSHELF|g" "$PATCH_FILE"
+        success "Add Shelf restored."
+    else
+        warn "Skipped Add Shelf."
+    fi
 
-    ask_yes_no "Do you wish to restore the Left Column?" && \
-        sed -i "s|$STR_NOLEFTCOLUMN|$STR_LEFTCOLUMN|g" "$PATCH_FILE" && \
-        success "Left Column restored." || warn "Skipped Left Column."
+    if ask_yes_no "Do you wish to restore the Left Column?"; then
+        sed -i "s|$STR_NOLEFTCOLUMN|$STR_LEFTCOLUMN|g" "$PATCH_FILE"
+        success "Left Column restored."
+    else
+        warn "Skipped Left Column."
+    fi
 
     if ! cmp -s "$CSS_FILE" "$PATCH_FILE"; then
         mv "$PATCH_FILE" "$CSS_FILE"
@@ -246,11 +292,15 @@ restore_backup() {
         [[ "$sel" == "q" ]] && return
         if [[ "$sel" =~ ^[0-9]+$ ]] && (( sel >= 1 && sel <= ${#BACKUPS[@]} )); then
             RESTORE_FILE="${BACKUPS[$((sel-1))]}"
-            ask_yes_no "Restore $(basename "$RESTORE_FILE") to $CSS_NAME?" && cp -f "$RESTORE_FILE" "$CSS_FILE" && success "Backup restored."
+            if ask_yes_no "Restore $(basename "$RESTORE_FILE") to $CSS_NAME?"; then
+                cp -f "$RESTORE_FILE" "$CSS_FILE"
+                success "Backup restored."
+            fi
             refresh_backups
             break
+        else
+            warn "Invalid selection."
         fi
-        warn "Invalid selection."
     done
 }
 
@@ -267,7 +317,12 @@ clean_backups() {
     for sel in $selections; do
         if [[ "$sel" =~ ^[0-9]+$ ]] && (( sel >= 1 && sel <= ${#BACKUPS[@]} )); then
             FILE="${BACKUPS[$((sel-1))]}"
-            ask_yes_no "Delete $(basename "$FILE")?" && rm -f "$FILE" && success "Deleted $(basename "$FILE")" || warn "Skipped $(basename "$FILE")"
+            if ask_yes_no "Delete $(basename "$FILE")?"; then
+                rm -f "$FILE"
+                success "Deleted $(basename "$FILE")"
+            else
+                warn "Skipped $(basename "$FILE")"
+            fi
             refresh_backups
         else
             warn "Invalid selection: $sel"
@@ -283,9 +338,10 @@ restore_css_defaults() {
         warn "Original CSS backup not found!"
         return
     fi
-    ask_yes_no "Restore $CSS_NAME to original Steam CSS?" && \
-        cp -f "$ORIGINAL_BACKUP" "$CSS_FILE" && \
+    if ask_yes_no "Restore $CSS_NAME to original Steam CSS?"; then
+        cp -f "$ORIGINAL_BACKUP" "$CSS_FILE"
         success "CSS restored to native defaults."
+    fi
     refresh_backups
 }
 
@@ -333,15 +389,15 @@ while true; do
         patch_css
     elif [[ "$choice" == "2" ]]; then
         reverse_css_changes
-    elif [[ "$choice" == "3" && ${#BACKUPS[@]} > 0 ]]; then
+    elif [[ "$choice" == "3" && ${#BACKUPS[@]} -gt 0 ]]; then
         restore_backup
-    elif [[ "$choice" == "4" && ${#BACKUPS[@]} > 0 ]]; then
+    elif [[ "$choice" == "4" && ${#BACKUPS[@]} -gt 0 ]]; then
         clean_backups
-    elif [[ "$choice" == "5" && ${#BACKUPS[@]} > 0 ]]; then
+    elif [[ "$choice" == "5" && ${#BACKUPS[@]} -gt 0 ]]; then
         restore_css_defaults
-    elif [[ "$choice" == "3" && ${#BACKUPS[@]} == 0 ]]; then
+    elif [[ "$choice" == "3" && ${#BACKUPS[@]} -eq 0 ]]; then
         restore_css_defaults
-    elif [[ "$choice" == "6" && ${#BACKUPS[@]} > 0 ]] || [[ "$choice" == "4" && ${#BACKUPS[@]} == 0 ]]; then
+    elif [[ "$choice" == "6" && ${#BACKUPS[@]} -gt 0 ]] || [[ "$choice" == "4" && ${#BACKUPS[@]} -eq 0 ]]; then
         warn "Exiting."
         exit 0
     else
