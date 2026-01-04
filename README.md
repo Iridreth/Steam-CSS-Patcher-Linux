@@ -94,6 +94,7 @@ Run the script in your preferred Linux terminal:
 ## License
 
 GPLv3
+
 [LICENSE](LICENSE)
 
 ---
