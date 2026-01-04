@@ -35,22 +35,18 @@ Make sure to keep a backup of the original. On my Arch system it can be found he
 - Bash (tested with bash 5+)
 - Steam - System or Flatpak (only tested on System)
 
-Expected Steam CSS path:
-
-    ~/.steam/steam/steamui/css/
-
 ---
 
 ## Installation
 
 Clone the repository:
 
-    git clone https://github.com/yourusername/steam-css-patcher.git
-    cd steam-css-patcher
+    git clone https://github.com/yourusername/steam-css-patcher-linux.git
+    cd steam-css-patcher-linux
 
 Make the script executable:
 
-    chmod +x steam-css-patcher.sh
+    chmod +x steam-css-patcher-linux.sh
 
 ---
 
@@ -58,7 +54,7 @@ Make the script executable:
 
 Run the script in your preferred Linux terminal:
 
-    ./steam-css-patcher.sh
+    ./steam-css-patcher-linux.sh
 
 ### Main Menu Options
 
