@@ -10,7 +10,7 @@ This script allows you to:
 - Hide the Left Column
 - Safely backup, restore, and clean up CSS changes
 
-⚠️⚠️⚠️ Use at your own risk — Steam updates may overwrite CSS files at any time. ⚠️⚠️⚠️
+⚠️ Use at your own risk — Steam updates may overwrite CSS files at any time. ⚠️
 
 Make sure to keep a backup of the original. On my Arch system it can be found here:
 
@@ -93,13 +93,13 @@ Run the script in your preferred Linux terminal:
 
 ---
 
-## 📜 License
+## License
 
 MIT License — use, modify, and share freely.
 
 ---
 
-## ❓ Disclaimer
+## Disclaimer
 
 This project is not affiliated with Valve or Steam.  
 All trademarks belong to their respective owners.
