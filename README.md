@@ -32,7 +32,7 @@ Make sure to keep a backup of the original. On my Arch system it can be found he
 ## Requirements
 
 - Linux
-- Bash (tested with bash 5+)
+- Bash
 - Steam - System or Flatpak (only tested on System)
 
 ---
