@@ -10,8 +10,6 @@ This script allows you to:
 - Hide the Left Column
 - Safely backup, restore, and clean up CSS changes
 
-⚠️ Use at your own risk — Steam updates may overwrite CSS files at any time. ⚠️
-
 Make sure to keep a backup of the original. On my Arch system it can be found here:
 
     ~/.steam/steam/steamui/css/chunk~2dcc5aaf7.css
@@ -108,3 +106,6 @@ All trademarks belong to their respective owners.
 
 Original inspiration came from the original PowerShell script by xtcrefugee:
 https://github.com/xtcrefugee
+
+
+⚠️ Use at your own risk — Steam updates may overwrite CSS files at any time.
