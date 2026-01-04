@@ -2,7 +2,7 @@
 
 A simple, interactive Bash script for customising the Steam client UI on Linux by patching Steam’s compiled CSS files.
 
-I prefer a minimalist aesthetic, and one day became annoyed by the subjective bloat on Steam's Library page. I came across a Powershell script by xtcrefugee (https://github.com/xtcrefugee) and decided to adapt it so that I could use it on Linux. I threw it into an AI server I had built and decided to vibecode it into an interactive script.  This is the result.
+I prefer a minimalist aesthetic, and one day became annoyed by the subjective bloat on Steam's Library page. I came across a Powershell script by xtcrefugee and decided to adapt it so that I could use it on Linux. I threw it into an AI server I had built and decided to vibecode it into an interactive script.  This is the result.
 
 This script allows you to:
 - Hide the 'What’s New' section
