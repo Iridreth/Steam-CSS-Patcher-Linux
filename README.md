@@ -93,7 +93,7 @@ Run the script in your preferred Linux terminal:
 
 ## License
 
-MIT License — use, modify, and share freely.
+GPLv3
 
 ---
 
