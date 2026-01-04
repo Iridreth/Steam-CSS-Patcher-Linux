@@ -33,7 +33,7 @@ Make sure to keep a backup of the original. On my Arch system it can be found he
 
 - Linux
 - Bash (tested with bash 5+)
-- Steam - System or Flatpak (has not been tested on Flatpak)
+- Steam - System or Flatpak (only tested on System)
 
 Expected Steam CSS path:
 
