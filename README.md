@@ -20,8 +20,8 @@ Make sure to keep a backup of the original. On my Arch system it can be found he
 
 - Interactive menu-driven interface
 - Automatic detection of the active css file
-- On first run creates a hidden backup file in the same folder as the steam CSS file to allow the user to restore the CSS file from the time of the first script run.
 - Optional backups before patching
+- The first run creates a hidden backup file in the Steam CSS file folder to allow the user to restore this CSS file as an original backup.
 - Selective enable/disable of the Steam Library page UI elements. Each CSS change is optional and confirmed interactively.
 - Restore from a previous backup
 - Ensures Steam is not running before modifying files
@@ -69,14 +69,10 @@ Run the script in your preferred Linux terminal:
 
 ## Backups
 
-- Backups are stored alongside the CSS file:
-
-    chunk~xxxxx.css.backup  
-    chunk~xxxxx.css.backup.1  
-    chunk~xxxxx.css.backup.2  
-
+- Backups are stored alongside the CSS file
 - Each backup includes a timestamp in the menu
 - You can restore or delete backups from within the script
+- 
 
 ---
 
