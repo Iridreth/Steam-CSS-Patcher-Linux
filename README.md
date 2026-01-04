@@ -62,6 +62,7 @@ Run the script in your preferred Linux terminal:
 - Reverse CSS changes
 - Restore from backup
 - Clean old backups
+- Restore CSS to native defaults
 - Quit
 
 ---
